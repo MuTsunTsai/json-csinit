@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+	<meta charset="UTF-8">
+	<title>JSON to C# object initializer</title>
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, width=device-width, user-scalable=no">
+	<meta name="description" content="JSON to CSharp Initializer">
+	<style>
+		textarea {
+			height: 500px;
+			tab-size: 4;
+			resize: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<textarea id="Input" style="width: 400px;" placeholder="Input JSON here"></textarea>
+		<textarea id="Output" readonly style="width: 800px;" placeholder="Output will show here"></textarea>
+	</div>
+	<button type="button" onclick="convert()">Convert</button>
+
+	<script>
+		const indent = "\t";
+
+		function convert() {
+			const input = JSON.parse(document.getElementById("Input").value);
+			document.getElementById("Output").value = parse(input, 0).replace(/,\n$/, "");
+		}
+
+		function parse(obj, depth) {
+			const ind = indent.repeat(depth);
+			const ind2 = ind + indent
+			if(Array.isArray(obj)) {
+				return "new List<object> {\n" +
+					obj.map(item => ind2 + parse(item, depth + 1)).join("") +
+					ind + "},\n";
+			} else if(obj === null || obj === undefined) {
+				return "null,\n";
+			} else if(typeof obj == "object") {
+				return "new {\n" +
+					Object.entries(obj).map(([key, value]) => ind2 + key + " = " + parse(value, depth + 1)).join("") +
+					ind + "},\n"
+			} else if(typeof obj == "string") {
+				return `"${obj}",\n`;
+			} else if(typeof obj == "number") {
+				return obj + ",\n";
+			}
+		}
+	</script>
+</body>
+
+</html>
